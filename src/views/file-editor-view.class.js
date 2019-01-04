@@ -81,10 +81,10 @@ a {
 `;
 
 export class FileEditorView extends EventTarget {
-    constructor(container, webdavClient, filename) {
+    constructor(container, webdavClient, filename, rootDirectoryName) {
         super();
 
-        this.rootDirectoryName = "Junge Sprachwissenschaft";
+        this.rootDirectoryName = rootDirectoryName;
 
         this.container = container;
         this.webdavClient = webdavClient;

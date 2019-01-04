@@ -92,10 +92,10 @@ a:hover {
 `;
 
 export class FileListView extends EventTarget {
-    constructor(container, webdavClient) {
+    constructor(container, webdavClient, rootDirectoryName) {
         super();
 
-        this.rootDirectoryName = "Junge Sprachwissenschaft";
+        this.rootDirectoryName = rootDirectoryName;
 
         this.container = container;
         this.webdavClient = webdavClient;

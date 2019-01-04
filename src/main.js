@@ -23,10 +23,10 @@ async function attemptLogin(event) {
     });
 
     if (await testCredentials(webdavClient)) {
-        const fileListView = new FileListView(container, webdavClient);    
+        const fileListView = new FileListView(container, webdavClient, config.rootDirectoryName);
 
         fileListView.addEventListener("editFile", (event) => {
-            const fileEditorView = new FileEditorView(container, webdavClient, event.detail.filename);
+            const fileEditorView = new FileEditorView(container, webdavClient, event.detail.filename, config.rootDirectoryName);
             fileEditorView.addEventListener("closeFile", (event) => {
                 fileListView.update();
             });
