@@ -5,8 +5,7 @@ import {createClient} from "webdav";
 import {FileEditorView} from "./views/file-editor-view.class";
 import {FileListView} from "./views/file-list-view.class";
 import {LoginView} from "./views/login-view.class";
-
-const webdavUrl = "https://example.com/dav";
+import config from "./config.json";
 
 async function testCredentials (webdavClient) {
     try {
@@ -18,7 +17,7 @@ async function testCredentials (webdavClient) {
 }
 
 async function attemptLogin(event) {
-    const webdavClient = createClient(webdavUrl, {
+    const webdavClient = createClient(config.webdavUrl, {
         username: event.detail.username,
         password: event.detail.password,
     });
