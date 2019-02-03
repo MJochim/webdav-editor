@@ -48,7 +48,7 @@ button#login {
 
 <form id="login-form">
     <h1>
-        Junge Sprachwissenschaft e.&thinsp;V
+        My organisation
         <br>
         Text-Editor
         <small class="version-indicator">v0.0.1</small>
