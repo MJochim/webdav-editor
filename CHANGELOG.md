@@ -2,6 +2,7 @@
 
 - Added button to create new files
 - Added spinner during log in
+- Ask user for confirmation when page is closed
 - Added configuration file config.json
 - Mobile view now supported
 - Minor style fix

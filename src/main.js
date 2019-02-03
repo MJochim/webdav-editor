@@ -36,6 +36,12 @@ async function attemptLogin(event) {
     }
 }
 
+window.addEventListener("beforeunload", function (event) {
+    event.preventDefault();
+    // Chrome requires returnValue to be set
+    event.returnValue = "";
+});
+
 window.addEventListener("load", async (event) => {
     const container = document.querySelector("#container");
     const loginView = new LoginView(container);
