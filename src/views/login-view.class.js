@@ -34,20 +34,7 @@ input {
     margin: 10px;
 }
 
-button {
-    padding: 10px;
-    margin: 10px;
-}
-
-#error-message-container {
-    display: none;
-}
-
-#error-message-container.visible {
-    display: block;
-    background-color: #fcf8e3;
-    color: #8a6d3b;
-
+button#login {
     padding: 10px;
     margin: 10px;
 }
@@ -69,11 +56,16 @@ button {
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
 
-    <p id="error-message-container">
+    <div class="message-container error">
         Login failed
-    </p>
+    </div>
+    
+    <div class="message-container in-progress">
+        <div class="load-spinner"></div>
+        Login is in progress
+    </div>
 
-    <button>Login</button>
+    <button id="login">Login</button>
 </form>
 `;
 
@@ -87,18 +79,23 @@ export class LoginView extends EventTarget {
 
     update() {
         this.container.innerHTML = htmlTemplate;
-        this.container.querySelector("form").addEventListener("submit", (event) => {
+        this.container.querySelector("form").addEventListener("submit", this.onclickLogin.bind(this));
+        this.container.querySelector("#username").focus();
+    }
+
+    onclickLogin(event) {
             event.preventDefault();
-            this.container.querySelector("#error-message-container").classList.remove("visible");
+            this.container.querySelector(".error.message-container").classList.remove("visible");
+            this.container.querySelector(".in-progress.message-container").classList.add("visible");
 
             this.dispatchEvent(new CustomEvent("login", {detail: {
                 username: this.container.querySelector("#username").value,
                 password: this.container.querySelector("#password").value,
             }}));
-        });
     }
 
     loginFailed() {
-        this.container.querySelector("#error-message-container").classList.add("visible");
+        this.container.querySelector(".error.message-container").classList.add("visible");
+        this.container.querySelector(".in-progress.message-container").classList.remove("visible");
     }
 }

@@ -1,6 +1,7 @@
 # 0.0.2
 
 - Added button to create new files
+- Added spinner during log in
 - Added configuration file config.json
 - Mobile view now supported
 - Minor style fix
