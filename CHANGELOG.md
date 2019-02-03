@@ -1,5 +1,6 @@
 # 0.0.2
 
+- Added button to create new files
 - Added configuration file config.json
 - Mobile view now supported
 - Minor style fix

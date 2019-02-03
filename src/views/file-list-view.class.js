@@ -38,6 +38,27 @@ const htmlTemplate = `
     margin: 0 10px;
 }
 
+.action-bar {
+    padding: 0 10px 20px 10px;
+}
+
+.action-bar button {
+    padding: 5px 30px;
+}
+
+.action-bar input {
+    padding: 5px;
+    width: 40ch;
+    transition-property: width, padding-left, padding-right;
+    transition-duration: 1s;
+}
+
+.action-bar input.invisible {
+    width: 0ch;
+    padding: 5px 0;
+    border: 0;
+}
+
 .table-container {
     width: 100%;
     flex-basis: 100%;
@@ -79,6 +100,18 @@ a:hover {
 </style>
 
 <p class="breadcrumbs"></p>
+
+<p class="action-bar">
+    <button>Create new file</button>
+    <input
+        placeholder="File name"
+        class="invisible"
+        disabled="disabled"
+        required="required"
+        pattern="[a-zA-Z0-9_\\.-]+"
+    >
+</p>
+
 <div class="table-container">
     <table class="file-list">
     <tr>
@@ -100,6 +133,11 @@ export class FileListView extends EventTarget {
         this.container = container;
         this.webdavClient = webdavClient;
         this.directory = "/";
+        this.files = [];
+
+        this.state = {
+            createFile: "none", // "none" | "edit-name" | "api-request"
+        };
 
         this.update();
     }
@@ -128,9 +166,130 @@ export class FileListView extends EventTarget {
         }
     }
 
+    async createFile (name) {
+        switch (this.state.createFile) {
+            case "edit-name":
+                this.state.createFile = "api-request";
+
+                const inputNewFileName = this.container.querySelector(".action-bar input");
+                inputNewFileName.disabled = true;
+
+                const buttonCreateFile = this.container.querySelector(".action-bar button");
+                buttonCreateFile.innerHTML = "<span class='load-spinner'></span> Creating new file";
+
+                try {
+                    console.log(this.directory);
+                    await this.webdavClient.putFileContents(this.directory + "/" + name, "");
+                } catch (error) {
+                    alert ("Error while writing the file. Please see browser console for details and contact the administrator.");
+                    console.log("Error while writing", this.filename, error);
+                }
+
+                buttonCreateFile.innerHTML = "Create new file";
+                inputNewFileName.classList.add("invisible");
+                inputNewFileName.value = "";
+                this.state.createFile = "none";
+
+                this.update();
+            break;
+
+            case "none":
+            case "api-request":
+                // When state is "none" or "api-request", this code path
+                // should not be reachable
+            break;
+        }
+    }
+
+    setupActionBar () {
+        const buttonCreateFile = this.container.querySelector(".action-bar button");
+        const inputNewFileName = this.container.querySelector(".action-bar input");
+
+        buttonCreateFile.addEventListener("click", (event) => {
+            switch (this.state.createFile) {
+                case "none":
+                    this.state.createFile = "edit-name";
+
+                    buttonCreateFile.disabled = true;
+
+                    inputNewFileName.value = "";
+                    inputNewFileName.disabled = false;
+                    inputNewFileName.classList.remove("invisible");
+                    inputNewFileName.focus();
+                break;
+
+                case "edit-name":
+                    const fileNameIsValid = inputNewFileName.checkValidity();
+
+                    if (fileNameIsValid) {
+                        this.createFile(inputNewFileName.value);
+                    }
+                break;
+
+                case "api-request":
+                    // When state is "api-request", this code path should not be
+                    // reachable
+                break;
+            }
+        });
+
+        inputNewFileName.addEventListener("keydown", (event) => {
+            switch (this.state.createFile) {
+                case "edit-name":
+                    if (
+                        event.key === "Enter" &&
+                        event.target.checkValidity()
+                    ) {
+                        this.createFile(event.target.value);
+                    }
+                break;
+
+                case "none":
+                case "api-request":
+                    // When state is "none" or "api-request", this code path
+                    // should not be reachable
+                break;
+            }
+        });
+
+        inputNewFileName.addEventListener("input", (event) => {
+            switch (this.state.createFile) {
+                case "edit-name":
+                    event.target.setCustomValidity ("");
+                    const inputIsValid = event.target.checkValidity();
+
+                    if (inputIsValid) {
+                        buttonCreateFile.disabled = false;
+
+                        const existingFilenames = this.files.map(x => x.basename);
+                        if (existingFilenames.includes(event.target.value)) {
+                            buttonCreateFile.disabled = true;
+                            event.target.setCustomValidity("This filename already exists.");
+                        }
+                    } else {
+                        buttonCreateFile.disabled = true;
+                        event.target.setCustomValidity ("Please only use letters, numbers, underscores, dashes and dots.");
+                    }
+
+                    event.target.reportValidity();
+                break;
+
+                case "none":
+                case "api-request":
+                    // When state is "none" or "api-request", this code path
+                    // should not be reachable
+                break;
+            }
+        });
+    }
+
     async update() {
-        const files = await this.webdavClient.getDirectoryContents(this.directory);
+        this.files = await this.webdavClient.getDirectoryContents(this.directory);
         this.container.innerHTML = htmlTemplate;
+
+        this.state = {
+            createFile: "none",
+        };
 
         const breadcrumbs = this.container.querySelector(".breadcrumbs");
         const directories = this.directory.split("/").map(x => { return {name: x, isRoot: false}});
@@ -165,9 +324,11 @@ export class FileListView extends EventTarget {
             breadcrumbs.appendChild(item);
         }
 
+        this.setupActionBar();
+
         const list = this.container.querySelector("table");
 
-        for (const file of files) {
+        for (const file of this.files) {
             const fileExtension = FileListView.getFileExtension(file.basename);
 
             const row = document.createElement("tr");
