@@ -51,7 +51,7 @@ button#login {
         My organisation
         <br>
         Text-Editor
-        <small class="version-indicator">v0.0.1</small>
+        <small class="version-indicator">v0.0.2</small>
     </h1>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">

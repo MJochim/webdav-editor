@@ -1,4 +1,4 @@
-# 0.0.2
+# 0.0.2 (2019-02-03)
 
 - Added button to create new files
 - Added spinner during log in
