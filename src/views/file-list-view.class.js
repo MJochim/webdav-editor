@@ -283,14 +283,7 @@ export class FileListView extends EventTarget {
         });
     }
 
-    async update() {
-        this.files = await this.webdavClient.getDirectoryContents(this.directory);
-        this.container.innerHTML = htmlTemplate;
-
-        this.state = {
-            createFile: "none",
-        };
-
+    updateBreadcrumbs () {
         const breadcrumbs = this.container.querySelector(".breadcrumbs");
         const directories = this.directory.split("/").map(x => { return {name: x, isRoot: false}});
         directories[0].name = this.rootDirectoryName;
@@ -323,9 +316,9 @@ export class FileListView extends EventTarget {
 
             breadcrumbs.appendChild(item);
         }
+    }
 
-        this.setupActionBar();
-
+    async updateFileList () {
         const list = this.container.querySelector("table");
 
         for (const file of this.files) {
@@ -387,5 +380,18 @@ export class FileListView extends EventTarget {
 
             list.appendChild(row);
         }
+    }
+
+    async update() {
+        this.files = await this.webdavClient.getDirectoryContents(this.directory);
+        this.container.innerHTML = htmlTemplate;
+
+        this.state = {
+            createFile: "none",
+        };
+
+        this.updateBreadcrumbs();
+        this.setupActionBar();
+        await this.updateFileList();
     }
 }
