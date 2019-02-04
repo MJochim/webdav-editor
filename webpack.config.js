@@ -13,18 +13,15 @@ module.exports = {
         "html.worker": "monaco-editor/esm/vs/language/html/html.worker",
         "ts.worker": "monaco-editor/esm/vs/language/typescript/ts.worker",
     },
-    devtool: "inline-source-map",
     devServer: {
         contentBase: "./src",
         historyApiFallback: true,
-        hot: true
     },
     plugins: [
       new CleanWebpackPlugin(["dist"]),
       new HtmlWebpackPlugin({
         template: "./src/index.html"
       }),
-      new webpack.HotModuleReplacementPlugin()
     ],
     output: {
         globalObject: 'self',
